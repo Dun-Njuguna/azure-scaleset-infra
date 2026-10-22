@@ -6,31 +6,7 @@ One codebase, three environments (`dev`, `staging`, `prod`). Everything that dif
 
 ## Architecture
 
-```mermaid
-flowchart LR
-    user[Users] -->|HTTP 80| lb[Standard Load Balancer<br/>health probe: /ready]
-    admin[Admins] -.->|SSH 50000+, admin IPs only<br/>dev/staging| lb
-
-    subgraph vnet [VNet per environment]
-      subgraph app [snet-app]
-        vmss[VM Scale Set<br/>Ubuntu 24.04 + Docker<br/>autoscale, rolling upgrades]
-      end
-      subgraph db [snet-db, delegated]
-        pg[(PostgreSQL<br/>Flexible Server)]
-      end
-      subgraph pe [snet-pe]
-        redis[(Azure Managed Redis<br/>private endpoint)]
-      end
-    end
-
-    lb --> vmss
-    vmss -->|5432, TLS| pg
-    vmss -->|10000, TLS| redis
-    vmss -->|managed identity| kv[Key Vault<br/>firewalled]
-    lb -->|egress via outbound rule| internet[Internet: apt, image pulls]
-    mon[Log Analytics + alerts] -.-> lb & vmss & pg
-    gov[Budget + lock] -.-> rg[Resource group]
-```
+![Architecture: load balancer, VM Scale Set, PostgreSQL and Redis on private subnets, Key Vault, monitoring and governance](docs/architecture.svg)
 
 ## Environments
 

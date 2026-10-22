@@ -1,0 +1,162 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1290 740" width="1290" height="740" font-family="Segoe UI, -apple-system, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1F2937"/>
+    </marker>
+    <marker id="arrow-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#6B7280"/>
+    </marker>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="2" flood-color="#0F172A" flood-opacity="0.12"/>
+    </filter>
+    <style>
+      .title { font-size: 22px; font-weight: 700; fill: #0F172A; }
+      .subtitle { font-size: 13px; fill: #475569; }
+      .box { fill: #FFFFFF; stroke: #CBD5E1; stroke-width: 1.5; filter: url(#shadow); }
+      .key { fill: #EFF6FF; stroke: #0078D4; stroke-width: 1.8; filter: url(#shadow); }
+      .data { fill: #F5F3FF; stroke: #7C3AED; stroke-width: 1.8; }
+      .h { font-size: 15px; font-weight: 650; fill: #0F172A; }
+      .t { font-size: 12.5px; fill: #475569; }
+      .lbl { font-size: 12px; fill: #1F2937; font-weight: 600; }
+      .lbl-muted { font-size: 12px; fill: #6B7280; font-style: italic; }
+      .zone-label { font-size: 13px; font-weight: 700; fill: #0369A1; letter-spacing: 0.3px; }
+      .subnet-label { font-size: 12px; font-weight: 700; fill: #475569; }
+      .flow { stroke: #1F2937; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .mgmt { stroke: #6B7280; stroke-width: 1.6; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrow-muted); }
+      .pill { fill: #FFFFFF; }
+    </style>
+  </defs>
+
+  <rect width="1290" height="740" fill="#FFFFFF"/>
+
+  <!-- Title -->
+  <text x="40" y="42" class="title">azure-vmss-platform</text>
+  <text x="40" y="64" class="subtitle">One environment (dev, staging or prod), built from envs/&lt;env&gt;.tfvars</text>
+
+  <!-- Resource group boundary -->
+  <rect x="235" y="88" width="1025" height="625" rx="14" fill="#F8FAFC" stroke="#94A3B8" stroke-width="1.5" stroke-dasharray="8 6"/>
+  <text x="255" y="114" class="zone-label" fill="#334155" style="fill:#334155">RESOURCE GROUP  rg-plat-&lt;env&gt;</text>
+
+  <!-- VNet -->
+  <rect x="470" y="135" width="575" height="420" rx="12" fill="#F0F7FF" stroke="#0078D4" stroke-width="1.5"/>
+  <text x="490" y="160" class="zone-label">VNET  (separate /16 per environment)</text>
+
+  <!-- Subnets -->
+  <rect x="490" y="178" width="245" height="355" rx="10" fill="#FFFFFF" stroke="#93C5FD" stroke-width="1.3"/>
+  <text x="506" y="200" class="subnet-label">snet-app</text>
+
+  <rect x="775" y="178" width="250" height="165" rx="10" fill="#FFFFFF" stroke="#93C5FD" stroke-width="1.3"/>
+  <text x="791" y="200" class="subnet-label">snet-db  (delegated)</text>
+
+  <rect x="775" y="368" width="250" height="165" rx="10" fill="#FFFFFF" stroke="#93C5FD" stroke-width="1.3"/>
+  <text x="791" y="390" class="subnet-label">snet-pe  (private endpoints)</text>
+
+  <!-- VMSS: stacked instances -->
+  <rect x="533" y="262" width="180" height="118" rx="10" fill="#DBEAFE" stroke="#0078D4" stroke-width="1.2"/>
+  <rect x="523" y="272" width="180" height="118" rx="10" fill="#E8F1FC" stroke="#0078D4" stroke-width="1.2"/>
+  <rect x="513" y="282" width="180" height="118" rx="10" class="key"/>
+  <text x="603" y="312" class="h" text-anchor="middle">VM Scale Set</text>
+  <text x="603" y="334" class="t" text-anchor="middle">Ubuntu 24.04 + Docker</text>
+  <text x="603" y="354" class="t" text-anchor="middle">autoscale · rolling upgrades</text>
+  <text x="603" y="374" class="t" text-anchor="middle">users from cloud-init</text>
+  <text x="603" y="430" class="t" text-anchor="middle">health extension → /ready</text>
+  <text x="603" y="450" class="t" text-anchor="middle">nights &amp; weekends: 0 instances</text>
+  <text x="603" y="470" class="t" text-anchor="middle">(dev / staging)</text>
+
+  <!-- Postgres cylinder -->
+  <g>
+    <path d="M840,232 v62 a60,13 0 0 0 120,0 v-62" class="data"/>
+    <ellipse cx="900" cy="232" rx="60" ry="13" class="data"/>
+    <text x="900" y="272" class="h" text-anchor="middle">PostgreSQL</text>
+    <text x="900" y="291" class="t" text-anchor="middle">Flexible Server</text>
+    <text x="900" y="330" class="t" text-anchor="middle">private access · no public IP</text>
+  </g>
+
+  <!-- Redis cylinder -->
+  <g>
+    <path d="M840,422 v62 a60,13 0 0 0 120,0 v-62" class="data"/>
+    <ellipse cx="900" cy="422" rx="60" ry="13" class="data"/>
+    <text x="900" y="460" class="h" text-anchor="middle">Managed Redis</text>
+    <text x="900" y="479" class="t" text-anchor="middle">TLS only</text>
+    <text x="900" y="520" class="t" text-anchor="middle">private endpoint · off in dev</text>
+  </g>
+
+  <!-- Load balancer -->
+  <rect x="265" y="262" width="175" height="118" rx="10" class="key"/>
+  <text x="352" y="296" class="h" text-anchor="middle">Load Balancer</text>
+  <text x="352" y="318" class="t" text-anchor="middle">Standard · public IP</text>
+  <text x="352" y="338" class="t" text-anchor="middle">probe: HTTP /ready</text>
+  <text x="352" y="358" class="t" text-anchor="middle">outbound rule</text>
+
+  <!-- Key Vault -->
+  <rect x="1080" y="178" width="160" height="96" rx="10" class="box"/>
+  <text x="1160" y="212" class="h" text-anchor="middle">Key Vault</text>
+  <text x="1160" y="234" class="t" text-anchor="middle">RBAC · firewalled</text>
+  <text x="1160" y="254" class="t" text-anchor="middle">DB + Redis secrets</text>
+
+  <!-- Monitoring -->
+  <rect x="490" y="600" width="245" height="78" rx="10" class="box"/>
+  <text x="612" y="632" class="h" text-anchor="middle">Log Analytics + alerts</text>
+  <text x="612" y="654" class="t" text-anchor="middle">LB health · CPU · DB storage</text>
+
+  <!-- Governance -->
+  <rect x="1080" y="600" width="160" height="78" rx="10" class="box"/>
+  <text x="1160" y="630" class="h" text-anchor="middle">Budget + lock</text>
+  <text x="1160" y="652" class="t" text-anchor="middle">alerts at 50/80/100%</text>
+
+  <!-- External actors -->
+  <rect x="40" y="200" width="150" height="62" rx="10" class="box"/>
+  <text x="115" y="237" class="h" text-anchor="middle">Users</text>
+
+  <rect x="40" y="380" width="150" height="62" rx="10" class="box"/>
+  <text x="115" y="417" class="h" text-anchor="middle">Admins</text>
+
+  <rect x="40" y="600" width="150" height="78" rx="10" class="box"/>
+  <text x="115" y="633" class="h" text-anchor="middle">Internet</text>
+  <text x="115" y="655" class="t" text-anchor="middle">apt · image pulls</text>
+
+  <!-- ===== Traffic flows (solid) ===== -->
+  <path d="M190,231 C230,231 230,290 263,290" class="flow"/>
+  <rect x="196" y="244" width="58" height="20" rx="4" class="pill"/>
+  <text x="225" y="258" class="lbl" text-anchor="middle">HTTP :80</text>
+
+  <path d="M440,321 L511,336" class="flow"/>
+
+  <path d="M693,320 C750,320 770,247 838,247" class="flow"/>
+  <rect x="728" y="272" width="74" height="20" rx="4" class="pill"/>
+  <text x="765" y="286" class="lbl" text-anchor="middle">5432 · TLS</text>
+
+  <path d="M693,365 C750,365 770,437 838,437" class="flow"/>
+  <rect x="722" y="392" width="86" height="20" rx="4" class="pill"/>
+  <text x="765" y="406" class="lbl" text-anchor="middle">10000 · TLS</text>
+
+  <!-- VMSS -> Key Vault via managed identity -->
+  <path d="M655,282 V140 C655,129 662,122 676,122 H1145 C1156,122 1160,130 1160,176" class="flow"/>
+  <rect x="880" y="112" width="122" height="20" rx="4" fill="#F8FAFC"/>
+  <text x="941" y="126" class="lbl" text-anchor="middle">managed identity</text>
+
+  <!-- LB egress -> Internet -->
+  <path d="M320,380 C320,520 250,639 192,639" class="flow"/>
+  <text x="335" y="478" class="lbl">egress via</text>
+  <text x="335" y="494" class="lbl">outbound rule</text>
+
+  <!-- ===== Management (dashed) ===== -->
+  <path d="M190,411 C230,411 230,355 263,355" class="mgmt"/>
+  <text x="115" y="466" class="lbl-muted" text-anchor="middle">SSH :50000+</text>
+  <text x="115" y="482" class="lbl-muted" text-anchor="middle">admin IPs only</text>
+  <text x="115" y="498" class="lbl-muted" text-anchor="middle">(closed in prod)</text>
+
+  <path d="M612,537 V596" class="mgmt"/>
+  <path d="M425,382 C445,480 495,560 556,602" class="mgmt"/>
+  <text x="455" y="600" class="lbl-muted" text-anchor="middle">metrics · logs</text>
+
+  <text x="1160" y="706" class="lbl-muted" text-anchor="middle">scoped to this resource group</text>
+
+  <!-- Legend -->
+  <g transform="translate(870,610)">
+    <line x1="0" y1="10" x2="40" y2="10" stroke="#1F2937" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="50" y="14" class="t">traffic</text>
+    <line x1="0" y1="40" x2="40" y2="40" stroke="#6B7280" stroke-width="1.6" stroke-dasharray="6 5" marker-end="url(#arrow-muted)"/>
+    <text x="50" y="44" class="t">admin / monitoring</text>
+  </g>
+</svg>
