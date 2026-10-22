@@ -84,7 +84,7 @@ mock_provider "azurerm" {
 
   mock_resource "azurerm_linux_virtual_machine_scale_set" {
     defaults = {
-      id       = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-mock/providers/Microsoft.Compute/virtualMachineScaleSets/vmss-mock"
+      id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-mock/providers/Microsoft.Compute/virtualMachineScaleSets/vmss-mock"
     }
   }
 }

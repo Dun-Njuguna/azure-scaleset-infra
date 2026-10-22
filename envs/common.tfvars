@@ -7,8 +7,8 @@ location    = "southafricanorth"
 owner       = "duncan-kariuki"
 cost_center = "platform"
 
-alert_emails = ["alerts@example.com"]  # override in common.local.tfvars
-admin_cidrs  = ["203.0.113.10/32"]      # override in common.local.tfvars (your public IP)
+alert_emails = ["alerts@example.com"] # override in common.local.tfvars
+admin_cidrs  = ["203.0.113.10/32"]    # override in common.local.tfvars (your public IP)
 
 app_image = "ghcr.io/your-github-user/node-cicd-pipeline:latest"
 
