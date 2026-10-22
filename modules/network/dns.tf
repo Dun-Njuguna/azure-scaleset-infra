@@ -7,11 +7,10 @@ resource "azurerm_private_dns_zone" "postgres" {
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "postgres" {
-  name                  = "link-postgres"
-  resource_group_name   = var.resource_group_name
-  private_dns_zone_name = azurerm_private_dns_zone.postgres.name
-  virtual_network_id    = azurerm_virtual_network.this.id
-  tags                  = var.tags
+  name                = "link-postgres"
+  private_dns_zone_id = azurerm_private_dns_zone.postgres.id
+  virtual_network_id  = azurerm_virtual_network.this.id
+  tags                = var.tags
 }
 
 resource "azurerm_private_dns_zone" "redis" {
@@ -21,9 +20,8 @@ resource "azurerm_private_dns_zone" "redis" {
 }
 
 resource "azurerm_private_dns_zone_virtual_network_link" "redis" {
-  name                  = "link-redis"
-  resource_group_name   = var.resource_group_name
-  private_dns_zone_name = azurerm_private_dns_zone.redis.name
-  virtual_network_id    = azurerm_virtual_network.this.id
-  tags                  = var.tags
+  name                = "link-redis"
+  private_dns_zone_id = azurerm_private_dns_zone.redis.id
+  virtual_network_id  = azurerm_virtual_network.this.id
+  tags                = var.tags
 }
