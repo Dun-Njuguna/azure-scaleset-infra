@@ -45,19 +45,6 @@ resource "azurerm_lb_rule" "http" {
   frontend_ip_configuration_name = "public"
   backend_address_pool_ids       = [azurerm_lb_backend_address_pool.app.id]
   probe_id                       = azurerm_lb_probe.ready.id
-  disable_outbound_snat          = true # outbound is handled by the explicit rule below
+  disable_outbound_snat          = true # inbound only: egress goes through the NAT gateway
   tcp_reset_enabled              = true
-}
-
-# Instances have no public IPs and the subnet has no default outbound access,
-# so internet egress (apt, image pulls) goes through this rule.
-resource "azurerm_lb_outbound_rule" "egress" {
-  name                    = "egress"
-  loadbalancer_id         = azurerm_lb.this.id
-  protocol                = "All"
-  backend_address_pool_id = azurerm_lb_backend_address_pool.app.id
-
-  frontend_ip_configuration {
-    name = "public"
-  }
 }

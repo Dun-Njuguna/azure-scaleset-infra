@@ -32,6 +32,11 @@ output "bastion" {
   } : null
 }
 
+output "egress_ip" {
+  description = "Every outbound connection from the servers comes from this IP (NAT gateway)."
+  value       = module.network.nat_public_ip
+}
+
 output "subnets" {
   value = module.network.subnet_prefixes
 }

@@ -3,7 +3,10 @@ output "vnet_id" {
 }
 
 output "app_subnet_id" {
-  value = azurerm_subnet.app.id
+  # Servers need internet on first boot (packages, image pull), so anything
+  # placed in this subnet waits until the NAT gateway is attached.
+  value      = azurerm_subnet.app.id
+  depends_on = [azurerm_subnet_nat_gateway_association.app]
 }
 
 output "db_subnet_id" {
@@ -29,6 +32,10 @@ output "bastion_subnet_id" {
   value = var.bastion_enabled ? azurerm_subnet.bastion[0].id : null
   # Bastion must not be created until its NSG is attached, or Azure rejects it.
   depends_on = [azurerm_subnet_network_security_group_association.bastion]
+}
+
+output "nat_public_ip" {
+  value = azurerm_public_ip.nat.ip_address
 }
 
 output "subnet_prefixes" {

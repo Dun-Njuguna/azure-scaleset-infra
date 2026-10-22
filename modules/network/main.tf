@@ -26,8 +26,8 @@ resource "azurerm_subnet" "app" {
   virtual_network_name = azurerm_virtual_network.this.name
   address_prefixes     = [local.subnets.app]
 
-  # Outbound goes through an explicit load balancer outbound rule, not
-  # Azure's implicit default outbound access (retired for new subnets).
+  # Outbound goes through the NAT gateway (nat.tf), not Azure's implicit
+  # default outbound access (retired for new subnets).
   default_outbound_access_enabled = false
 
   # Lets instances reach Key Vault while the vault's firewall stays closed.
