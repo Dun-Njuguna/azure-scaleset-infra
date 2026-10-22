@@ -11,7 +11,7 @@ set -euo pipefail
 usage() { echo "usage: $0 <dev|staging|prod> <init|plan|apply|destroy|output|...> [args]" >&2; exit 1; }
 
 ENV="${1:-}"; CMD="${2:-}"
-[ -n "$ENV" ] && [ -n "$CMD" ] || usage
+if [ -z "$ENV" ] || [ -z "$CMD" ]; then usage; fi
 shift 2
 case "$ENV" in dev|staging|prod) ;; *) usage ;; esac
 
