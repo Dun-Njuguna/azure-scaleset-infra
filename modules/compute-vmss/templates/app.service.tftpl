@@ -1,0 +1,17 @@
+[Unit]
+Description=Application container
+Requires=docker.service
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStartPre=/usr/local/bin/fetch-secrets.sh
+ExecStartPre=-/usr/bin/docker rm -f app
+ExecStartPre=/usr/bin/docker pull ${app_image}
+ExecStart=/usr/bin/docker run --name app --rm --env-file /etc/app/app.env -p 80:${app_port} ${app_image}
+ExecStop=/usr/bin/docker stop app
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
