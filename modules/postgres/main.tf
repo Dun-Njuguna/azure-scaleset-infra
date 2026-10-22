@@ -1,3 +1,4 @@
+# tflint-ignore: azurerm_resources_missing_prevent_destroy # prevent_destroy can't vary per env; prod is protected by the RG lock instead
 resource "azurerm_postgresql_flexible_server" "this" {
   name                = var.name
   location            = var.location
@@ -44,6 +45,7 @@ resource "azurerm_postgresql_flexible_server" "this" {
   }
 }
 
+# tflint-ignore: azurerm_resources_missing_prevent_destroy # prevent_destroy can't vary per env; prod is protected by the RG lock instead
 resource "azurerm_postgresql_flexible_server_database" "this" {
   for_each = toset(var.databases)
 

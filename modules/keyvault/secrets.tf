@@ -1,3 +1,4 @@
+# tflint-ignore: azurerm_resources_missing_prevent_destroy # prevent_destroy can't vary per env; prod is protected by the RG lock instead
 resource "azurerm_key_vault_secret" "breakglass_ssh_key" {
   name         = "breakglass-ssh-private-key"
   key_vault_id = azurerm_key_vault.this.id
@@ -7,6 +8,7 @@ resource "azurerm_key_vault_secret" "breakglass_ssh_key" {
 }
 
 # Write-only: the value goes to Key Vault but never into Terraform state or plans.
+# tflint-ignore: azurerm_resources_missing_prevent_destroy # prevent_destroy can't vary per env; prod is protected by the RG lock instead
 resource "azurerm_key_vault_secret" "postgres_password" {
   name             = "postgres-password"
   key_vault_id     = azurerm_key_vault.this.id

@@ -1,3 +1,4 @@
+# tflint-ignore: azurerm_resources_missing_prevent_destroy # prevent_destroy can't vary per env; prod is protected by the RG lock instead
 resource "azurerm_key_vault" "this" {
   name                = var.name
   location            = var.location
