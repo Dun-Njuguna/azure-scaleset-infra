@@ -46,12 +46,20 @@ resource "azurerm_storage_account" "state" {
   }
 
   tags = azurerm_resource_group.state.tags
+
+  lifecycle {
+    prevent_destroy = true # holds every environment's state
+  }
 }
 
 resource "azurerm_storage_container" "state" {
   name                  = var.container_name
   storage_account_id    = azurerm_storage_account.state.id
   container_access_type = "private"
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 # Whoever runs bootstrap can read and write state with their Entra ID login.
