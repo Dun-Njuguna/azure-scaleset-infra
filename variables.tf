@@ -58,7 +58,7 @@ variable "address_space" {
 }
 
 variable "admin_cidrs" {
-  description = "Your public IP(s): allowed to SSH in and through the Key Vault firewall."
+  description = "Your public IP(s): the only addresses that can reach Azure Bastion or get through the Key Vault firewall."
   type        = list(string)
 
   validation {
@@ -72,9 +72,16 @@ variable "admin_cidrs" {
   }
 }
 
-variable "ssh_enabled" {
-  description = "Allow SSH from admin_cidrs through the load balancer."
-  type        = bool
+variable "bastion" {
+  description = <<-EOT
+    Azure Bastion: the ONLY way to SSH to the servers (and through them, to the
+    databases). When disabled, there is no SSH access at all; use Run Command.
+    Bastion bills hourly while it exists, so dev/staging leave it off until needed.
+  EOT
+  type = object({
+    enabled = bool
+    sku     = string
+  })
 }
 
 # =============================================================================

@@ -1,5 +1,6 @@
 # ---------------------------------------------------------------------------
-# App subnet: HTTP from anywhere, SSH only from admin ranges (if enabled).
+# App subnet: HTTP from the internet (via the load balancer), SSH ONLY from
+# the Bastion subnet. There is no other way to open a shell on a server.
 # ---------------------------------------------------------------------------
 resource "azurerm_network_security_group" "app" {
   name                = "nsg-${var.name_prefix}-app"
@@ -20,18 +21,31 @@ resource "azurerm_network_security_group" "app" {
   }
 
   dynamic "security_rule" {
-    for_each = var.ssh_enabled ? [1] : []
+    for_each = var.bastion_enabled ? [1] : []
     content {
-      name                       = "allow-ssh-admins"
+      name                       = "allow-ssh-from-bastion"
       priority                   = 110
       direction                  = "Inbound"
       access                     = "Allow"
       protocol                   = "Tcp"
-      source_address_prefixes    = var.admin_cidrs
+      source_address_prefix      = local.subnets.bastion
       source_port_range          = "*"
       destination_address_prefix = local.subnets.app
       destination_port_range     = "22"
     }
+  }
+
+  # Explicit, so it's visible in the portal and in reviews: no SSH from anywhere else.
+  security_rule {
+    name                       = "deny-ssh-other"
+    priority                   = 120
+    direction                  = "Inbound"
+    access                     = "Deny"
+    protocol                   = "Tcp"
+    source_address_prefix      = "*"
+    source_port_range          = "*"
+    destination_address_prefix = "*"
+    destination_port_range     = "22"
   }
 }
 

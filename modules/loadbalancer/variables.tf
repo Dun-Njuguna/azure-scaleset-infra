@@ -21,21 +21,6 @@ variable "health_path" {
   default     = "/ready"
 }
 
-variable "ssh_enabled" {
-  description = "Create the SSH NAT rule (ports 50000+ -> 22 on each instance)."
-  type        = bool
-}
-
-variable "ssh_frontend_port_start" {
-  type    = number
-  default = 50000
-}
-
-variable "max_instances" {
-  description = "Size of the SSH NAT port range: one port per possible instance."
-  type        = number
-}
-
 variable "tags" {
   type = map(string)
 }

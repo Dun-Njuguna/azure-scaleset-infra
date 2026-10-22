@@ -22,12 +22,12 @@ variable "address_space" {
 }
 
 variable "admin_cidrs" {
-  description = "Source ranges allowed to SSH in (through the load balancer NAT rule)."
+  description = "Public IPs allowed to reach Azure Bastion (HTTPS 443). Nothing else can start an SSH session."
   type        = list(string)
 }
 
-variable "ssh_enabled" {
-  description = "Open SSH from admin_cidrs."
+variable "bastion_enabled" {
+  description = "Create AzureBastionSubnet. SSH to the app servers is only possible from this subnet."
   type        = bool
 }
 

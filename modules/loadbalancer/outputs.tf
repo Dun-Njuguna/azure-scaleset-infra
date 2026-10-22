@@ -17,7 +17,3 @@ output "public_ip" {
 output "fqdn" {
   value = azurerm_public_ip.this.fqdn
 }
-
-output "ssh_port_range" {
-  value = var.ssh_enabled ? "${var.ssh_frontend_port_start}-${var.ssh_frontend_port_start + var.max_instances - 1}" : null
-}

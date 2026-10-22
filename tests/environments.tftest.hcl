@@ -41,6 +41,11 @@ mock_provider "azurerm" {
       id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-mock/providers/Microsoft.Network/publicIPAddresses/pip-mock"
     }
   }
+  mock_resource "azurerm_bastion_host" {
+    defaults = {
+      id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-mock/providers/Microsoft.Network/bastionHosts/bas-mock"
+    }
+  }
   mock_resource "azurerm_lb" {
     defaults = {
       id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-mock/providers/Microsoft.Network/loadBalancers/lb-mock"
@@ -98,6 +103,14 @@ mock_provider "tls" {
 }
 mock_provider "time" {}
 
+# Bastion validates that its subnet is literally named AzureBastionSubnet.
+override_resource {
+  target = module.network.azurerm_subnet.bastion
+  values = {
+    id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-mock/providers/Microsoft.Network/virtualNetworks/vnet-mock/subnets/AzureBastionSubnet"
+  }
+}
+
 run "environment_settings_are_applied" {
   command = plan
 
@@ -112,8 +125,13 @@ run "environment_settings_are_applied" {
   }
 
   assert {
-    condition     = (output.ssh == null) == !var.ssh_enabled
-    error_message = "SSH details must only be exposed when ssh_enabled is true."
+    condition     = (output.bastion == null) == !var.bastion.enabled
+    error_message = "Bastion must exist exactly when bastion.enabled is true."
+  }
+
+  assert {
+    condition     = var.environment != "prod" || var.bastion.enabled
+    error_message = "Prod needs Bastion: it is the only way in during an incident."
   }
 
   assert {

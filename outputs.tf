@@ -23,14 +23,17 @@ output "users" {
   value       = module.users.summary
 }
 
-output "ssh" {
-  description = "How to reach an instance. Each instance has its own port in the range."
-  value = var.ssh_enabled ? {
-    host       = module.loadbalancer.fqdn
-    port_range = module.loadbalancer.ssh_port_range
-    example    = "ssh -p ${split("-", module.loadbalancer.ssh_port_range)[0]} <your-username>@${module.loadbalancer.fqdn}"
-    port_map   = "Portal: ${module.loadbalancer.name} -> Inbound NAT rules -> ssh"
+output "bastion" {
+  description = "How to SSH in. There is no other route to the servers."
+  value = var.bastion.enabled ? {
+    name          = module.bastion[0].name
+    native_client = module.bastion[0].native_client_enabled
+    connect       = "./scripts/ssh.sh ${var.environment}"
   } : null
+}
+
+output "subnets" {
+  value = module.network.subnet_prefixes
 }
 
 output "key_vault_name" {

@@ -24,3 +24,13 @@ output "redis_dns_zone_id" {
   value      = azurerm_private_dns_zone.redis.id
   depends_on = [azurerm_private_dns_zone_virtual_network_link.redis]
 }
+
+output "bastion_subnet_id" {
+  value = var.bastion_enabled ? azurerm_subnet.bastion[0].id : null
+  # Bastion must not be created until its NSG is attached, or Azure rejects it.
+  depends_on = [azurerm_subnet_network_security_group_association.bastion]
+}
+
+output "subnet_prefixes" {
+  value = local.subnets
+}

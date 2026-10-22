@@ -24,7 +24,7 @@ locals {
     disable_root    = true
     package_update  = true
     package_upgrade = true
-    packages        = ["docker.io", "jq", "curl", "unattended-upgrades"]
+    packages        = ["docker.io", "jq", "curl", "unattended-upgrades", "postgresql-client"]
 
     write_files = [
       {
@@ -48,6 +48,20 @@ locals {
           app_image = var.app_image
           app_port  = var.app_port
         })
+      },
+      {
+        # Admin access to Postgres: SSH in through Bastion, then run "sudo db".
+        # The database only accepts connections from this subnet.
+        path        = "/usr/local/bin/db"
+        permissions = "0750"
+        content     = <<-EOT
+          #!/bin/sh
+          # psql to this environment's Postgres, using the app's connection settings.
+          set -a
+          . /etc/app/app.env
+          set +a
+          exec psql "$@"
+        EOT
       },
       {
         path        = "/etc/ssh/sshd_config.d/00-hardening.conf"

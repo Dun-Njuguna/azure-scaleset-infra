@@ -26,7 +26,19 @@ module "network" {
   resource_group_name = azurerm_resource_group.this.name
   address_space       = var.address_space
   admin_cidrs         = var.admin_cidrs
-  ssh_enabled         = var.ssh_enabled
+  bastion_enabled     = var.bastion.enabled
+  tags                = local.tags
+}
+
+module "bastion" {
+  source = "./modules/bastion"
+  count  = var.bastion.enabled ? 1 : 0
+
+  name_prefix         = local.name_prefix
+  location            = var.location
+  resource_group_name = azurerm_resource_group.this.name
+  subnet_id           = module.network.bastion_subnet_id
+  sku                 = var.bastion.sku
   tags                = local.tags
 }
 
@@ -135,8 +147,6 @@ module "loadbalancer" {
   location            = var.location
   resource_group_name = azurerm_resource_group.this.name
   dns_label           = "${local.name_prefix}-${local.unique}"
-  ssh_enabled         = var.ssh_enabled
-  max_instances       = var.instances.max
   tags                = local.tags
 }
 

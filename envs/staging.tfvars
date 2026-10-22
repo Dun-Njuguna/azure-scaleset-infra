@@ -4,7 +4,11 @@ address_space = "10.20.0.0/16"
 vm_size                    = "Standard_B2s"
 instances                  = { min = 1, max = 3, default = 1 }
 autoscale_schedule_enabled = true
-ssh_enabled                = true
+# Enable when needed, disable after (bills hourly).
+bastion = {
+  enabled = false
+  sku     = "Standard"
+}
 
 postgres = {
   sku_name                     = "B_Standard_B1ms"

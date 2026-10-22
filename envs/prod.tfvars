@@ -6,7 +6,11 @@ vm_size                    = "Standard_D2as_v5"
 instances                  = { min = 2, max = 6, default = 2 }
 zones                      = ["1", "2", "3"]
 autoscale_schedule_enabled = false
-ssh_enabled                = false # open temporarily via tfvars if ever needed
+# Always on in prod: the only way in during an incident.
+bastion = {
+  enabled = true
+  sku     = "Standard"
+}
 
 postgres = {
   sku_name                     = "GP_Standard_D2ds_v5"
