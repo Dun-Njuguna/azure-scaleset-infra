@@ -1,0 +1,52 @@
+# Stops dev Postgres in the evening and starts it in the morning, matching the
+# scale set's business-hours schedule. Terraform can't do this: a stopped
+# Flexible Server is a runtime state, not configuration.
+#
+# Auth is OIDC (no Azure secret stored in GitHub). One-time setup in the README.
+name: Dev Postgres schedule
+
+on:
+  schedule:
+    - cron: "0 17 * * 1-5" # 20:00 EAT, Mon-Fri: stop (stays off over the weekend)
+    - cron: "0 4 * * 1-5"  # 07:00 EAT, Mon-Fri: start
+  workflow_dispatch:
+    inputs:
+      action:
+        description: start or stop
+        type: choice
+        options: [start, stop]
+        required: true
+
+permissions:
+  id-token: write # OIDC token for azure/login
+  contents: read
+
+concurrency:
+  group: dev-postgres-schedule
+  cancel-in-progress: false
+
+jobs:
+  postgres:
+    runs-on: ubuntu-latest
+    env:
+      RG: ${{ vars.DEV_RESOURCE_GROUP }}
+      SERVER: ${{ vars.DEV_POSTGRES_SERVER }}
+      ACTION: ${{ inputs.action || (github.event.schedule == '0 17 * * 1-5' && 'stop' || 'start') }}
+    steps:
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: ${{ env.ACTION }} dev Postgres
+        run: |
+          state="$(az postgres flexible-server show -g "$RG" -n "$SERVER" --query state -o tsv)"
+          echo "Current state: $state, requested: $ACTION"
+          if [ "$ACTION" = "stop" ] && [ "$state" = "Ready" ]; then
+            az postgres flexible-server stop -g "$RG" -n "$SERVER"
+          elif [ "$ACTION" = "start" ] && [ "$state" = "Stopped" ]; then
+            az postgres flexible-server start -g "$RG" -n "$SERVER"
+          else
+            echo "Nothing to do."
+          fi
