@@ -1,7 +1,6 @@
-# One NAT rule covering the whole pool: instance N gets frontend port
-# ssh_frontend_port_start + N. List mappings with:
-#   az network lb inbound-nat-rule show-backend-port-mapping ...
-# (scripts/whoami-on-instances.sh does this for you)
+# One NAT rule (v2) covering the whole backend pool: Azure gives each instance
+# its own frontend port from the range. See which instance has which port in
+# the portal: Load balancer -> Inbound NAT rules -> ssh.
 resource "azurerm_lb_nat_rule" "ssh" {
   count = var.ssh_enabled ? 1 : 0
 

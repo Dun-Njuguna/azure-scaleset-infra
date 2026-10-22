@@ -29,7 +29,7 @@ output "ssh" {
     host       = module.loadbalancer.fqdn
     port_range = module.loadbalancer.ssh_port_range
     example    = "ssh -p ${split("-", module.loadbalancer.ssh_port_range)[0]} <your-username>@${module.loadbalancer.fqdn}"
-    port_map   = "./scripts/whoami-on-instances.sh ${var.environment}"
+    port_map   = "Portal: ${module.loadbalancer.name} -> Inbound NAT rules -> ssh"
   } : null
 }
 
