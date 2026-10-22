@@ -18,7 +18,8 @@ One codebase, three environments (`dev`, `staging`, `prod`). Everything that dif
 | **Resource groups** | One per environment (`rg-plat-dev`, `rg-plat-staging`, `rg-plat-prod`), plus `rg-tfstate` for Terraform state |
 | **Virtual Network** | One `/16` per environment, split into four subnets (below) |
 | **Network Security Groups** | Firewall rules on every subnet |
-| **Load Balancer** (Standard) + **Public IP** | Public entry point for app traffic (HTTP 80), health probe on `/ready`, outbound rule for internet egress |
+| **Load Balancer** (Standard) + **Public IP** | Public entry point for app traffic (HTTP 80) with a health probe on `/ready`. Inbound only |
+| **NAT Gateway** + **Public IP** | The servers' only way out to the internet: one fixed egress IP, SNAT ports allocated on demand, nothing can connect in |
 | **Azure Bastion** (Standard) | The only way to SSH to the servers, from the portal or your terminal |
 | **Virtual Machine Scale Sets** | Ubuntu 24.04 servers running the app in Docker |
 | **Application Health extension** | Reports each instance's `/ready` status, which gates rolling upgrades |
@@ -40,7 +41,6 @@ One codebase, three environments (`dev`, `staging`, `prod`). Everything that dif
 
 **Not used:**
 - **Application Gateway / WAF** and **Front Door**: traffic is plain HTTP through a Standard Load Balancer. Adding Application Gateway (TLS termination + WAF) is the main upgrade path.
-- **NAT Gateway**: egress goes through the load balancer's outbound rule instead.
 - **Azure DNS public zones**: the app uses the public IP's Azure-provided name.
 - **Container Registry**: the image comes from GitHub Container Registry.
 - **AKS**: the app runs in Docker on scale set instances.
@@ -51,7 +51,7 @@ Each environment gets its own address space, so they never overlap and could be 
 
 | Subnet | Range (dev) | Contains | Allowed in | Notes |
 |---|---|---|---|---|
-| `snet-app` | `10.10.1.0/24` | VM Scale Set instances | HTTP 80 from the internet (via the load balancer); SSH 22 **from the Bastion subnet only** | Key Vault service endpoint; no default outbound access, so egress goes via the load balancer |
+| `snet-app` | `10.10.1.0/24` | VM Scale Set instances | HTTP 80 from the internet (via the load balancer); SSH 22 **from the Bastion subnet only** | Key Vault service endpoint; default outbound access off, so all egress goes through the **NAT gateway** |
 | `snet-db` | `10.10.2.0/24` | PostgreSQL Flexible Server | 5432 **from `snet-app` only** | Delegated to `Microsoft.DBforPostgreSQL/flexibleServers` |
 | `snet-pe` | `10.10.3.0/24` | Redis private endpoint | 10000 **from `snet-app` only** | NSG rules enforced on private endpoints |
 | `AzureBastionSubnet` | `10.10.4.0/26` | Azure Bastion | HTTPS 443 **from `admin_cidrs` only**, plus Azure's required platform rules | Name and `/26` minimum size are set by Azure |
@@ -77,6 +77,7 @@ Inside the VNet, Azure's resolver checks the linked private zones first, so the 
 | **Admins** | App servers | **Azure Bastion only**, from an IP in `admin_cidrs`: browser (portal) or `./scripts/ssh.sh <env>` |
 | **Admins** | Postgres | Through a server: Bastion → server → `sudo db`, or `./scripts/ssh.sh <env> 0 --db` to tunnel it to `localhost:5432` |
 | **App servers** | Postgres, Redis, Key Vault | Private network + managed identity |
+| **App servers** | The internet (outbound only) | NAT gateway, always from one fixed IP: `terraform output egress_ip` |
 | **Bastion** | App servers on port 22 | **Nothing else.** No route to the databases |
 | **Anyone else** | Nothing | No public IPs on servers or databases; SSH is closed except from Bastion |
 
@@ -112,9 +113,10 @@ With Bastion off there is no SSH path at all; `whoami-on-instances.sh` still wor
 - **Scale to zero** in dev and staging: 20:00 to 07:00 on weekdays (EAT), and all weekend.
 - **Dev Postgres** is stopped and started on the same schedule by a GitHub workflow.
 - **Redis off in dev**, and **Bastion on demand** in dev and staging: neither can be paused.
+- **NAT gateway** bills hourly plus per GB processed. It stays on in every environment, because servers need it to boot.
 - **Log Analytics** capped at 1 GB/day.
 
-Check the [Azure pricing calculator](https://azure.microsoft.com/pricing/calculator/) for your region. Bastion and Managed Redis are the largest fixed costs.
+Check the [Azure pricing calculator](https://azure.microsoft.com/pricing/calculator/) for your region. Bastion, Managed Redis and the NAT gateway are the largest fixed costs.
 
 </details>
 
@@ -134,11 +136,11 @@ envs/
   <env>.tfvars      what makes each environment different
   <env>.backend.hcl which state file each environment uses
 modules/
-  network/          VNet, 4 subnets, NSGs (incl. Bastion's), private DNS zones
+  network/          VNet, 4 subnets, NSGs (incl. Bastion's), NAT gateway, private DNS zones
   bastion/          Azure Bastion + public IP
   users/            validates users, renders cloud-init (no Azure resources)
   compute-vmss/     scale set, cloud-init, health extension, rolling upgrades, autoscale
-  loadbalancer/     public IP, LB, /ready probe, outbound rule
+  loadbalancer/     public IP, LB, /ready probe (inbound only)
   postgres/         Flexible Server, private access, write-only password
   redis/            Azure Managed Redis + private endpoint
   keyvault/         vault (RBAC + firewall) and secrets
@@ -254,13 +256,14 @@ Prod has a CanNotDelete lock, so destroying it takes two steps:
 - **Bastion as the only door.** No public IPs on servers and no SSH NAT rules. Bastion itself is reachable only from `admin_cidrs`, and its subnet has no route to the databases.
 - **Users in cloud-init.** Scale set instances come and go, so anything configured after boot drifts. Baking users in makes every instance identical and removal guaranteed.
 - **Max-surge rolling upgrades** gated by the health extension: deploys and user changes never reduce capacity.
-- **Explicit outbound** through a load balancer rule, because implicit default outbound access is retired for new subnets.
+- **Egress through a NAT gateway**, with default outbound access off, because implicit outbound access is retired for new subnets. A NAT gateway gives one fixed IP to allow-list elsewhere and allocates SNAT ports on demand, so egress doesn't run out of ports as the scale set grows. It also keeps the load balancer purely inbound.
 - **Azure Managed Redis**, not the retiring Azure Cache for Redis, with the `EnterpriseCluster` policy so ordinary clients work.
 - **`prevent_destroy` only on state storage.** Terraform can't vary it per environment, so prod relies on the resource lock, soft delete and purge protection instead.
 
 ### Known limitations and next steps
 
 - **HTTP only.** Add Application Gateway (TLS + WAF) or Front Door in front of the load balancer.
+- **The NAT gateway is zonal** (Standard SKU), while prod's servers span three zones. If that zone fails, prod loses outbound internet until it recovers. Zone-redundant egress needs the newer StandardV2 NAT gateway or one NAT gateway per zone.
 - **Users and app image share cloud-init**, so changing either replaces every instance. A larger setup would bake a golden image with Packer.
 - **State still contains** the break-glass private key and the Redis key, because those resources expose them. Treat state access as admin access.
 - **Region:** check Azure Managed Redis is available in your region before enabling it.
