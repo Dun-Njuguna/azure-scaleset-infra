@@ -1,0 +1,57 @@
+name: Validate
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.16.6
+
+      - name: Format
+        run: terraform fmt -check -recursive
+
+      - name: Validate (no backend)
+        run: |
+          terraform init -backend=false -input=false
+          terraform validate
+
+      - name: Validate bootstrap
+        working-directory: bootstrap
+        run: |
+          terraform init -backend=false -input=false
+          terraform validate
+
+      - name: Users module tests
+        working-directory: modules/users
+        run: |
+          terraform init -input=false
+          terraform test
+
+      - name: Plan every environment against mocked providers
+        run: |
+          for e in dev staging prod; do
+            echo "::group::$e"
+            terraform test -var-file=envs/common.tfvars -var-file=envs/$e.tfvars
+            echo "::endgroup::"
+          done
+
+      - uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_version: v0.64.0
+
+      - name: tflint
+        run: |
+          tflint --init
+          tflint --recursive --config "$GITHUB_WORKSPACE/.tflint.hcl"
+        env:
+          GITHUB_TOKEN: ${{ github.token }} # avoids GitHub API rate limits when downloading plugins
