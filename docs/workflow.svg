@@ -1,0 +1,195 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 850" width="1400" height="850" font-family="Segoe UI, -apple-system, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1F2937"/>
+    </marker>
+    <marker id="arrow-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#6B7280"/>
+    </marker>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="2" flood-color="#0F172A" flood-opacity="0.12"/>
+    </filter>
+    <style>
+      .title { font-size: 22px; font-weight: 700; fill: #0F172A; }
+      .subtitle { font-size: 13px; fill: #475569; }
+      .panel-label { font-size: 13px; font-weight: 700; letter-spacing: 0.3px; }
+      .box { fill: #FFFFFF; stroke: #CBD5E1; stroke-width: 1.5; filter: url(#shadow); }
+      .key { fill: #EFF6FF; stroke: #0078D4; stroke-width: 1.8; filter: url(#shadow); }
+      .gh { fill: #F6F8FA; stroke: #57606A; stroke-width: 1.6; filter: url(#shadow); }
+      .state { fill: #FFFBEB; stroke: #D97706; stroke-width: 1.8; filter: url(#shadow); }
+      .chip { fill: #FFFFFF; stroke: #CBD5E1; stroke-width: 1.2; }
+      .chip-state { fill: #FFFFFF; stroke: #F59E0B; stroke-width: 1.2; }
+      .h { font-size: 15px; font-weight: 650; fill: #0F172A; }
+      .t { font-size: 12.5px; fill: #475569; }
+      .tb { font-size: 12.5px; fill: #0F172A; font-weight: 600; }
+      .code { font-family: "JetBrains Mono", "DejaVu Sans Mono", Menlo, Consolas, monospace; font-size: 12px; fill: #0F172A; }
+      .lbl { font-size: 12px; fill: #1F2937; font-weight: 600; }
+      .lbl-muted { font-size: 12px; fill: #6B7280; font-style: italic; }
+      .flow { stroke: #1F2937; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .mgmt { stroke: #6B7280; stroke-width: 1.6; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrow-muted); }
+      .ok { fill: #1A7F37; font-weight: 700; }
+    </style>
+  </defs>
+
+  <rect width="1400" height="850" fill="#FFFFFF"/>
+
+  <text x="30" y="40" class="title">How a change reaches Azure</text>
+  <text x="30" y="62" class="subtitle">CI checks every push but never applies. Changes reach Azure only through scripts/tf.sh, which pairs each environment's state with its own tfvars.</text>
+
+  <!-- ================= TOP BAND ================= -->
+  <!-- Laptop: dev loop -->
+  <rect x="30" y="90" width="440" height="245" rx="14" fill="#F8FAFC" stroke="#94A3B8" stroke-width="1.5" stroke-dasharray="8 6"/>
+  <text x="50" y="116" class="panel-label" style="fill:#334155">YOUR MACHINE · write &amp; check</text>
+
+  <rect x="50" y="145" width="120" height="110" rx="10" class="box"/>
+  <text x="110" y="180" class="h" text-anchor="middle">Edit</text>
+  <text x="110" y="203" class="t" text-anchor="middle">modules/</text>
+  <text x="110" y="221" class="t" text-anchor="middle">envs/*.tfvars</text>
+
+  <rect x="190" y="145" width="120" height="110" rx="10" class="box"/>
+  <text x="250" y="180" class="h" text-anchor="middle">make test</text>
+  <text x="250" y="203" class="t" text-anchor="middle">offline</text>
+  <text x="250" y="221" class="t" text-anchor="middle">Azure mocked</text>
+
+  <rect x="330" y="145" width="120" height="110" rx="10" class="box"/>
+  <text x="390" y="180" class="h" text-anchor="middle">git push</text>
+  <text x="390" y="203" class="t" text-anchor="middle">commit, then</text>
+  <text x="390" y="221" class="t" text-anchor="middle">push / open PR</text>
+
+  <path d="M170,200 H188" class="flow"/>
+  <path d="M310,200 H328" class="flow"/>
+  <text x="250" y="290" class="lbl-muted" text-anchor="middle">same checks CI runs, before you push</text>
+
+  <!-- GitHub panel -->
+  <rect x="510" y="90" width="860" height="245" rx="14" fill="#F8FAFC" stroke="#94A3B8" stroke-width="1.5" stroke-dasharray="8 6"/>
+  <text x="530" y="116" class="panel-label" style="fill:#334155">GITHUB</text>
+
+  <rect x="530" y="145" width="160" height="110" rx="10" class="gh"/>
+  <text x="610" y="182" class="h" text-anchor="middle">Repository</text>
+  <text x="610" y="205" class="t" text-anchor="middle">azure-scaleset-infra</text>
+  <text x="610" y="224" class="t" text-anchor="middle">branch: main</text>
+
+  <rect x="740" y="132" width="300" height="190" rx="10" class="gh"/>
+  <text x="760" y="160" class="h">Validate workflow</text>
+  <text x="760" y="180" class="lbl-muted">on every push and pull request</text>
+  <text x="760" y="206" class="t"><tspan class="ok">✓</tspan>  terraform fmt -check</text>
+  <text x="760" y="226" class="t"><tspan class="ok">✓</tspan>  validate (root + bootstrap)</text>
+  <text x="760" y="246" class="t"><tspan class="ok">✓</tspan>  users module tests (9)</text>
+  <text x="760" y="266" class="t"><tspan class="ok">✓</tspan>  plan dev / staging / prod, mocked</text>
+  <text x="760" y="286" class="t"><tspan class="ok">✓</tspan>  tflint + azurerm ruleset</text>
+  <text x="760" y="308" class="lbl-muted">no Azure credentials, never applies</text>
+
+  <rect x="1080" y="132" width="270" height="190" rx="10" class="gh"/>
+  <text x="1100" y="160" class="h">Dev Postgres schedule</text>
+  <text x="1100" y="180" class="lbl-muted">cron, weekdays (EAT)</text>
+  <text x="1100" y="208" class="t">20:00  stop dev Postgres</text>
+  <text x="1100" y="228" class="t">07:00  start dev Postgres</text>
+  <text x="1100" y="256" class="t">logs in with OIDC:</text>
+  <text x="1100" y="276" class="t">short-lived token,</text>
+  <text x="1100" y="296" class="t">no secret stored in GitHub</text>
+
+  <path d="M450,200 C490,200 495,200 528,200" class="flow"/>
+  <path d="M690,190 H738" class="flow"/>
+  <path d="M738,240 H692" class="mgmt"/>
+  <text x="610" y="285" class="lbl-muted" text-anchor="middle">✓ / ✗ shown on the commit</text>
+
+  <!-- ================= BOTTOM BAND ================= -->
+  <!-- Laptop: plan / apply -->
+  <rect x="30" y="375" width="440" height="445" rx="14" fill="#F8FAFC" stroke="#94A3B8" stroke-width="1.5" stroke-dasharray="8 6"/>
+  <text x="50" y="401" class="panel-label" style="fill:#334155">YOUR MACHINE · plan &amp; apply</text>
+
+  <rect x="50" y="420" width="400" height="380" rx="10" class="key"/>
+  <text x="70" y="450" class="code" style="font-size:13.5px;font-weight:700">./scripts/tf.sh dev plan → apply</text>
+
+  <text x="70" y="482" class="tb">①  az login</text>
+  <text x="96" y="500" class="t">once per session, as you (Entra ID)</text>
+
+  <text x="70" y="532" class="lbl" style="fill:#0369A1">PLAN</text>
+  <text x="70" y="554" class="t">init -reconfigure with <tspan class="code">envs/dev.backend.hcl</tspan></text>
+  <text x="70" y="580" class="tb">②  lock and read dev.tfstate</text>
+  <text x="70" y="606" class="tb">③  refresh: read what really exists</text>
+  <text x="70" y="632" class="tb">④  diff against the code and tfvars</text>
+  <text x="96" y="650" class="t">common.tfvars + dev.tfvars → <tspan class="code">dev.tfplan</tspan></text>
+
+  <text x="70" y="684" class="lbl" style="fill:#0369A1">APPLY  (you review the plan first)</text>
+  <text x="70" y="708" class="tb">⑤  create / update / delete in Azure</text>
+  <text x="70" y="734" class="tb">⑥  save new state version, unlock</text>
+
+  <text x="70" y="772" class="lbl-muted">prod: you must type "prod" before apply or destroy</text>
+
+  <!-- Azure panel -->
+  <rect x="560" y="375" width="810" height="445" rx="14" fill="#F0F7FF" stroke="#0078D4" stroke-width="1.5"/>
+  <text x="580" y="401" class="panel-label" style="fill:#0369A1">AZURE</text>
+
+  <rect x="590" y="742" width="330" height="58" rx="10" class="box"/>
+  <text x="755" y="766" class="h" text-anchor="middle">Entra ID</text>
+  <text x="755" y="786" class="t" text-anchor="middle">who is allowed to do what</text>
+
+  <!-- State storage -->
+  <rect x="590" y="418" width="330" height="240" rx="10" class="state"/>
+  <text x="610" y="446" class="h">Terraform state storage</text>
+  <text x="610" y="465" class="t">storage account → container "tfstate"</text>
+
+  <rect x="610" y="480" width="290" height="30" rx="6" class="chip-state"/>
+  <text x="624" y="500" class="code">dev.tfstate</text>
+  <text x="886" y="500" class="t" text-anchor="end">← this run</text>
+  <rect x="610" y="516" width="290" height="30" rx="6" class="chip-state" style="opacity:.6"/>
+  <text x="624" y="536" class="code" style="opacity:.6">staging.tfstate</text>
+  <rect x="610" y="552" width="290" height="30" rx="6" class="chip-state" style="opacity:.6"/>
+  <text x="624" y="572" class="code" style="opacity:.6">prod.tfstate</text>
+
+  <text x="610" y="606" class="t">versioned · locked while in use</text>
+  <text x="610" y="626" class="t">Entra login only · delete lock</text>
+  <text x="610" y="646" class="lbl-muted">created once by bootstrap/</text>
+
+  <!-- Environment resources -->
+  <rect x="980" y="418" width="365" height="382" rx="10" class="box"/>
+  <text x="1000" y="446" class="h">rg-plat-dev</text>
+  <text x="1000" y="465" class="t">the real infrastructure for this environment</text>
+
+  <rect x="1000" y="482" width="155" height="40" rx="6" class="chip"/><text x="1077" y="507" class="t" text-anchor="middle">VM Scale Set</text>
+  <rect x="1170" y="482" width="155" height="40" rx="6" class="chip"/><text x="1247" y="507" class="t" text-anchor="middle">Load Balancer</text>
+  <rect x="1000" y="532" width="155" height="40" rx="6" class="chip"/><text x="1077" y="557" class="t" text-anchor="middle">VNet + NSGs</text>
+  <rect x="1170" y="532" width="155" height="40" rx="6" class="chip" style="stroke:#7C3AED"/><text x="1247" y="557" class="t" text-anchor="middle">PostgreSQL</text>
+  <rect x="1000" y="582" width="155" height="40" rx="6" class="chip" style="stroke:#7C3AED"/><text x="1077" y="607" class="t" text-anchor="middle">Redis</text>
+  <rect x="1170" y="582" width="155" height="40" rx="6" class="chip"/><text x="1247" y="607" class="t" text-anchor="middle">Key Vault</text>
+  <rect x="1000" y="632" width="155" height="40" rx="6" class="chip"/><text x="1077" y="657" class="t" text-anchor="middle">Monitoring</text>
+  <rect x="1170" y="632" width="155" height="40" rx="6" class="chip"/><text x="1247" y="657" class="t" text-anchor="middle">Budget + lock</text>
+
+  <text x="1000" y="706" class="t">Each environment has its own resource</text>
+  <text x="1000" y="725" class="t">group and its own state file, so a dev</text>
+  <text x="1000" y="744" class="t">change can never touch prod.</text>
+
+  <!-- ===== flows: tf.sh <-> Azure ===== -->
+  <!-- 2: read state -->
+  <path d="M588,500 H452" class="flow"/>
+  <text x="520" y="490" class="lbl" text-anchor="middle">② lock + read</text>
+
+  <!-- 6: write state -->
+  <path d="M452,545 H588" class="flow"/>
+  <text x="520" y="566" class="lbl" text-anchor="middle">⑥ write</text>
+
+  <!-- 3: refresh, under the state box -->
+  <path d="M978,682 H452" class="mgmt"/>
+  <text x="780" y="674" class="lbl-muted" text-anchor="middle">③ refresh: read real resources</text>
+
+  <!-- 5: apply -->
+  <path d="M452,708 H978" class="flow"/>
+  <text x="780" y="728" class="lbl" text-anchor="middle">⑤ apply changes</text>
+
+  <!-- 1: sign in -->
+  <path d="M452,771 H588" class="mgmt"/>
+  <text x="520" y="762" class="lbl-muted" text-anchor="middle">① az login</text>
+
+  <!-- schedule workflow -> postgres, down the right edge -->
+  <path d="M1338,322 V552 H1328" class="mgmt"/>
+  <text x="1330" y="358" class="lbl-muted" text-anchor="end">OIDC → stop / start</text>
+
+  <!-- Legend -->
+  <g transform="translate(30,830)">
+    <line x1="0" y1="0" x2="34" y2="0" stroke="#1F2937" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="42" y="4" class="t">changes / data</text>
+    <line x1="160" y1="0" x2="194" y2="0" stroke="#6B7280" stroke-width="1.6" stroke-dasharray="6 5" marker-end="url(#arrow-muted)"/>
+    <text x="202" y="4" class="t">reads, auth, status</text>
+  </g>
+</svg>

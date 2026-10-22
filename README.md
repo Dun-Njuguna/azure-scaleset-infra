@@ -8,6 +8,12 @@ One codebase, three environments (`dev`, `staging`, `prod`). Everything that dif
 
 ![Architecture: load balancer, VM Scale Set, PostgreSQL and Redis on private subnets, Key Vault, monitoring and governance](docs/architecture.svg)
 
+## How a change reaches Azure
+
+![Workflow: edit and test locally, push to GitHub for validation, then tf.sh locks and reads the environment's state, refreshes from Azure, plans, applies and writes the new state](docs/workflow.svg)
+
+CI validates every push without touching Azure. Changes are applied from your machine with `scripts/tf.sh`, which always pairs an environment's state file with its own tfvars.
+
 ## Environments
 
 | | dev | staging | prod |
